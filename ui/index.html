@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AeroNova · Asistente de mostrador</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#campo-mensaje">Saltar al campo de mensaje</a>
+
+  <header class="cabecera">
+    <div class="cabecera-marca">
+      <img class="marca-logo" src="logo.png" width="1024" height="559"
+           alt="AeroNova · Aviation &amp; Innovation">
+      <h1 class="visualmente-oculto">AeroNova · Asistente de mostrador</h1>
+      <span class="marca-sub" aria-hidden="true">Asistente de mostrador</span>
+    </div>
+    <div class="cabecera-acciones">
+      <span id="aviso-coste" class="pastilla pastilla-aviso" hidden role="status" aria-live="polite"></span>
+      <button type="button" id="btn-guia" class="btn btn-plano" aria-haspopup="dialog">¿Qué puedo preguntar?</button>
+      <button type="button" id="btn-datos" class="btn btn-plano" aria-haspopup="dialog">Datos de prueba</button>
+      <button type="button" id="btn-contacto" class="btn btn-plano" aria-haspopup="dialog">Contacto</button>
+      <button type="button" id="btn-ajustes" class="btn btn-plano" aria-expanded="false" aria-controls="ajustes">Ajustes</button>
+      <button type="button" id="btn-nueva-sesion" class="btn btn-acento">Nueva sesión</button>
+    </div>
+  </header>
+
+  <section id="ajustes" class="ajustes" hidden aria-labelledby="ajustes-titulo">
+    <h2 id="ajustes-titulo">Conexión</h2>
+    <p class="ajustes-nota">Pega aquí la URL del servicio y la <code>x-api-key</code>, y pulsa
+      <strong>Guardar y usar</strong>. Se guardan solo en este navegador.</p>
+    <label for="in-api-url">URL del API</label>
+    <input type="url" id="in-api-url" inputmode="url" autocomplete="off" spellcheck="false"
+           placeholder="https://…execute-api…amazonaws.com/prod/v1/chat">
+    <label for="in-api-key">x-api-key</label>
+    <input type="password" id="in-api-key" autocomplete="off" spellcheck="false" placeholder="clave del Usage Plan">
+    <div class="ajustes-acciones">
+      <button type="button" id="btn-guardar-ajustes" class="btn btn-acento">Guardar y usar</button>
+      <button type="button" id="btn-cerrar-ajustes" class="btn btn-plano">Cerrar</button>
+      <span id="ajustes-ok" class="ajustes-ok" role="status" aria-live="polite" hidden>Guardado ✓</span>
+    </div>
+    <details class="ajustes-sim" id="ajustes-sim" hidden>
+      <summary>Herramientas de prueba de la interfaz (solo QA)</summary>
+      <p class="ajustes-nota">Solo para verificar la lista U-1…U-14. Fuerzan un estado en el cliente
+        sin llamar al servidor. <strong>No las necesitas para usar el asistente.</strong>
+        Se muestran solo si abres la página con <code>?pruebas=1</code>.</p>
+      <div class="sim-botones">
+        <button type="button" class="btn btn-plano" data-sim="turno40">Turno 40 (banda de aviso)</button>
+        <button type="button" class="btn btn-plano" data-sim="truncado">Contexto truncado</button>
+        <button type="button" class="btn btn-plano" data-sim="max_rounds">finish_reason max_rounds</button>
+        <button type="button" class="btn btn-plano" data-sim="budget">429 coste de sesión</button>
+        <button type="button" class="btn btn-plano" data-sim="quota">429 cuota mensual</button>
+      </div>
+    </details>
+  </section>
+
+  <main class="conversacion" id="conversacion" aria-live="polite" aria-label="Conversación">
+    <div id="estado-vacio" class="estado-vacio">
+      <h2>¿Qué necesitas consultar?</h2>
+      <p class="estado-vacio-sub">Pulsa un ejemplo para colocarlo en el cuadro de texto; revísalo y envíalo con Enter. Todos usan datos reales del sistema.</p>
+      <div class="destacados-cabecera">
+        <span class="destacados-eyebrow">Empieza por aquí</span>
+      </div>
+      <div id="destacados-lista" class="destacados-lista"></div>
+      <details id="mas-ejemplos" class="mas-ejemplos">
+        <summary>Ver más ejemplos por capacidad</summary>
+        <div id="tarjetas-ejemplo" class="tarjetas-ejemplo"></div>
+      </details>
+    </div>
+    <ol id="hilo" class="hilo" aria-label="Mensajes"></ol>
+  </main>
+
+  <div id="banda-turnos" class="banda banda-turnos" hidden role="status" aria-live="polite"></div>
+
+  <footer class="redaccion">
+    <div id="indicador-tool" class="indicador-tool" hidden role="status" aria-live="polite">
+      <svg class="avion-carga" viewBox="0 0 68 24" aria-hidden="true">
+        <line class="pista" x1="2" y1="21" x2="40" y2="21"/>
+        <path class="avion" d="M2 21 L22 12 2 3 2 10 17 12 2 14 Z"/>
+      </svg>
+      <span id="indicador-tool-texto"></span>
+    </div>
+    <p id="hint-conexion" class="hint-conexion" hidden>
+      Antes de empezar, abre <strong>Ajustes</strong> y guarda la URL del servicio y la clave.
+    </p>
+    <form id="form-mensaje" class="form-mensaje">
+      <label class="visualmente-oculto" for="campo-mensaje">Mensaje para el asistente</label>
+      <textarea id="campo-mensaje" rows="2" maxlength="4000"
+                placeholder="Escribe tu consulta y pulsa Enter (Shift+Enter = salto de línea)…" autocomplete="off"></textarea>
+      <div class="redaccion-pie">
+        <span id="contador" class="contador" role="status" aria-live="polite">0 / 1200 caracteres</span>
+        <span id="aviso-entrada" class="aviso-entrada" role="status" aria-live="polite" hidden></span>
+        <button type="submit" id="btn-enviar" class="btn btn-acento">Enviar</button>
+      </div>
+    </form>
+    <p id="sesion-info" class="sesion-info">
+      <span id="turnos-restantes" class="turnos-restantes" role="status" aria-live="polite">Mensajes disponibles en esta sesión: 50 de 50</span>
+      <span class="sep" aria-hidden="true"> · </span>
+      Sesión: <span id="sesion-id">—</span>
+      <span class="sesion-nota"> · «Nueva sesión» reinicia el contador</span>
+    </p>
+  </footer>
+
+  <!-- Guía de uso -->
+  <dialog id="dlg-guia" class="dlg" aria-labelledby="dlg-guia-titulo">
+    <div class="dlg-cuerpo">
+      <h2 id="dlg-guia-titulo">¿Qué puedo preguntar?</h2>
+      <p class="dlg-intro">Pulsa cualquier ejemplo para colocarlo en el cuadro de texto. Todos usan datos que existen de verdad en el sistema.</p>
+      <h3>Consultas con más impacto</h3>
+      <div id="guia-destacados" class="guia-destacados"></div>
+      <div id="guia-grupos" class="guia-grupos"></div>
+      <h3>Qué no puedo hacer</h3>
+      <ul id="guia-no-puedo"></ul>
+      <h3>Consejos para consultas eficaces</h3>
+      <ul id="guia-consejos"></ul>
+      <form method="dialog"><button class="btn btn-acento">Entendido</button></form>
+    </div>
+  </dialog>
+
+  <!-- Datos de prueba (demo) -->
+  <dialog id="dlg-datos" class="dlg" aria-labelledby="dlg-datos-titulo">
+    <div class="dlg-cuerpo">
+      <h2 id="dlg-datos-titulo">Datos de prueba</h2>
+      <p>Es una demo: no hay pasajeros reales. Usa estos códigos y localizadores, que sí existen
+        en el conjunto de datos. Pulsa <strong>Usar</strong> para meter la consulta en el chat.</p>
+      <h3>Vuelos</h3>
+      <div class="tabla-datos-wrap"><table class="tabla-datos" id="tabla-vuelos"></table></div>
+      <h3>Reservas (PNR)</h3>
+      <div class="tabla-datos-wrap"><table class="tabla-datos" id="tabla-reservas"></table></div>
+      <form method="dialog"><button class="btn btn-acento">Cerrar</button></form>
+    </div>
+  </dialog>
+
+  <!-- Contacto -->
+  <dialog id="dlg-contacto" class="dlg" aria-labelledby="dlg-contacto-titulo">
+    <div class="dlg-cuerpo">
+      <h2 id="dlg-contacto-titulo">Contacto</h2>
+      <p>Proyecto AeroNova · asistente conversacional de mostrador.</p>
+      <ul class="lista-suelta contacto-lista">
+        <li><strong>Jesús Antonio Arredondo</strong></li>
+        <li>Correo: <a href="mailto:jesusarredondo0498@gmail.com">jesusarredondo0498@gmail.com</a></li>
+        <li>LinkedIn:
+          <a href="https://www.linkedin.com/in/jes%C3%BAs-antonio-arredondo-g-inda-a35711207"
+             target="_blank" rel="noopener noreferrer">Jesús Antonio Arredondo</a></li>
+      </ul>
+      <form method="dialog"><button class="btn btn-acento">Cerrar</button></form>
+    </div>
+  </dialog>
+
+  <!-- Uso responsable -->
+  <dialog id="dlg-responsable" class="dlg" aria-labelledby="dlg-resp-titulo">
+    <div class="dlg-cuerpo">
+      <h2 id="dlg-resp-titulo">Cómo usar este asistente</h2>
+      <ul class="lista-suelta">
+        <li>Consulta el <strong>estado de vuelos</strong>, los <strong>datos de una reserva</strong> por su PNR y las <strong>políticas internas</strong> de AeroNova. No emite, modifica ni cancela nada.</li>
+        <li><strong>Verifica antes de comprometer algo con un pasajero.</strong> Las respuestas se apoyan en documentos internos y pueden estar desactualizadas frente a una excepción concreta.</li>
+        <li>Cada consulta tiene un coste. Los <strong>límites</strong> existen para mantener el servicio disponible para todo el equipo.</li>
+        <li>Incluir el código de vuelo (<code>AN1008</code>) o el PNR de 6 caracteres desde el principio <strong>evita turnos de ida y vuelta</strong>.</li>
+        <li><strong>No escribas credenciales, contraseñas ni datos de pago</strong> en el chat.</li>
+        <li>Cuando una consulta tiene datos que se pueden graficar, aparecen botones
+          <strong>«📊 Ver gráfica»</strong> bajo la respuesta. La gráfica se dibuja
+          <strong>solo si la pides</strong>, en tu navegador y a partir de los datos que
+          devuelve la herramienta; <strong>no la genera la IA</strong>.</li>
+      </ul>
+      <form method="dialog"><button class="btn btn-acento">Empezar</button></form>
+    </div>
+  </dialog>
+
+  <!-- Coste de sesión agotado -->
+  <dialog id="dlg-budget" class="dlg" aria-labelledby="dlg-budget-titulo">
+    <div class="dlg-cuerpo">
+      <h2 id="dlg-budget-titulo"><span aria-hidden="true">■</span> Sesión finalizada por coste</h2>
+      <p>Esta sesión alcanzó el límite de coste previsto. Abre una sesión nueva para seguir consultando; el historial anterior no se recupera.</p>
+      <div class="dlg-acciones">
+        <button type="button" id="btn-budget-nueva" class="btn btn-acento">Nueva sesión</button>
+        <form method="dialog"><button class="btn btn-plano">Cerrar</button></form>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Cuota mensual agotada -->
+  <dialog id="dlg-quota" class="dlg" aria-labelledby="dlg-quota-titulo">
+    <div class="dlg-cuerpo">
+      <h2 id="dlg-quota-titulo"><span aria-hidden="true">■</span> Servicio no disponible</h2>
+      <p>El asistente ha alcanzado su cuota mensual de consultas. Contacta con la persona responsable del servicio para ampliarla.</p>
+      <form method="dialog"><button class="btn btn-acento">Entendido</button></form>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

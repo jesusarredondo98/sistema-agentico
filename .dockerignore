@@ -1,0 +1,26 @@
+# PRD §2.6: la imagen solo lleva src/ + handler.py + requirements.txt.
+# Todo lo demas infla la imagen o mete datos sinteticos en el contenedor.
+terraform/
+tests/
+.git/
+data/
+*.md
+__pycache__/
+
+# Complementos coherentes con lo anterior (no sustituyen a la lista obligatoria):
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+docs/
+ui/
+pipelines/
+scripts/
+memory/
+documents/
+requirements-dev.txt
+.env
+.env.example
+.DS_Store

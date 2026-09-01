@@ -1,0 +1,140 @@
+{
+  "$defs": {
+    "PasajeroContract": {
+      "additionalProperties": false,
+      "description": "Un pasajero dentro de una reserva.",
+      "properties": {
+        "nombre": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Nombre",
+          "type": "string"
+        },
+        "tipo": {
+          "enum": [
+            "ADULTO",
+            "MENOR",
+            "INFANTE"
+          ],
+          "title": "Tipo",
+          "type": "string"
+        },
+        "asiento": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Asiento"
+        }
+      },
+      "required": [
+        "nombre",
+        "tipo"
+      ],
+      "title": "PasajeroContract",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Una reserva (PNR) del dataset sintetico, tal como entra al lago.",
+  "properties": {
+    "pnr": {
+      "pattern": "^[A-Z0-9]{6}$",
+      "title": "Pnr",
+      "type": "string"
+    },
+    "estado": {
+      "enum": [
+        "CONFIRMADA",
+        "CANCELADA",
+        "EN_ESPERA",
+        "VOLADA",
+        "NO_SHOW"
+      ],
+      "title": "Estado",
+      "type": "string"
+    },
+    "codigo_vuelo": {
+      "pattern": "^AN\\d{3,4}$",
+      "title": "Codigo Vuelo",
+      "type": "string"
+    },
+    "fecha_vuelo": {
+      "title": "Fecha Vuelo",
+      "type": "string"
+    },
+    "fecha_compra": {
+      "title": "Fecha Compra",
+      "type": "string"
+    },
+    "pasajeros": {
+      "items": {
+        "$ref": "#/$defs/PasajeroContract"
+      },
+      "maxItems": 9,
+      "minItems": 1,
+      "title": "Pasajeros",
+      "type": "array"
+    },
+    "clase_tarifa": {
+      "enum": [
+        "BASICA",
+        "FLEX",
+        "PREMIUM",
+        "BUSINESS"
+      ],
+      "title": "Clase Tarifa",
+      "type": "string"
+    },
+    "equipaje_facturado": {
+      "maximum": 20,
+      "minimum": 0,
+      "title": "Equipaje Facturado",
+      "type": "integer"
+    },
+    "mascota_en_cabina": {
+      "title": "Mascota En Cabina",
+      "type": "boolean"
+    },
+    "reembolsable": {
+      "title": "Reembolsable",
+      "type": "boolean"
+    },
+    "canal_compra": {
+      "enum": [
+        "WEB",
+        "MOSTRADOR",
+        "AGENCIA",
+        "CALL_CENTER"
+      ],
+      "title": "Canal Compra",
+      "type": "string"
+    }
+  },
+  "required": [
+    "pnr",
+    "estado",
+    "codigo_vuelo",
+    "fecha_vuelo",
+    "fecha_compra",
+    "pasajeros",
+    "clase_tarifa",
+    "equipaje_facturado",
+    "mascota_en_cabina",
+    "reembolsable",
+    "canal_compra"
+  ],
+  "title": "ReservaContract",
+  "type": "object",
+  "x-contract": {
+    "name": "reservations.reserva",
+    "version": "1.0.0",
+    "owner": "atencion_cliente@aeronova.example",
+    "sla_hours": 24
+  }
+}

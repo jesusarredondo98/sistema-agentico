@@ -1,0 +1,99 @@
+{
+  "additionalProperties": false,
+  "description": "Un vuelo del dataset sintetico, tal como entra al lago.",
+  "properties": {
+    "codigo_vuelo": {
+      "pattern": "^AN\\d{3,4}$",
+      "title": "Codigo Vuelo",
+      "type": "string"
+    },
+    "estado": {
+      "enum": [
+        "A_TIEMPO",
+        "DEMORADO",
+        "CANCELADO",
+        "EMBARCANDO",
+        "EN_VUELO",
+        "ATERRIZADO"
+      ],
+      "title": "Estado",
+      "type": "string"
+    },
+    "origen": {
+      "pattern": "^[A-Z]{3}$",
+      "title": "Origen",
+      "type": "string"
+    },
+    "destino": {
+      "pattern": "^[A-Z]{3}$",
+      "title": "Destino",
+      "type": "string"
+    },
+    "salida_programada": {
+      "title": "Salida Programada",
+      "type": "string"
+    },
+    "salida_estimada": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Salida Estimada"
+    },
+    "minutos_demora": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Minutos Demora",
+      "type": "integer"
+    },
+    "puerta": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Puerta"
+    },
+    "motivo": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Motivo"
+    },
+    "fecha_consulta": {
+      "title": "Fecha Consulta",
+      "type": "string"
+    }
+  },
+  "required": [
+    "codigo_vuelo",
+    "estado",
+    "origen",
+    "destino",
+    "salida_programada",
+    "fecha_consulta"
+  ],
+  "title": "VueloContract",
+  "type": "object",
+  "x-contract": {
+    "name": "flights.vuelo",
+    "version": "1.0.0",
+    "owner": "operaciones@aeronova.example",
+    "sla_hours": 24
+  }
+}

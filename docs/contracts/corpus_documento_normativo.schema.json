@@ -1,0 +1,88 @@
+{
+  "additionalProperties": false,
+  "description": "Un documento normativo del corpus. Literal de §6A.3 + 5 validaciones cruzadas.",
+  "properties": {
+    "doc_id": {
+      "pattern": "^POL-(EQU|MAS|CAM|REE|MEN|COM|ACC)-\\d{3}$",
+      "title": "Doc Id",
+      "type": "string"
+    },
+    "titulo": {
+      "maxLength": 200,
+      "minLength": 10,
+      "title": "Titulo",
+      "type": "string"
+    },
+    "categoria": {
+      "enum": [
+        "EQUIPAJE",
+        "MASCOTAS",
+        "CAMBIOS",
+        "REEMBOLSOS",
+        "MENORES",
+        "COMPENSACIONES",
+        "ACCESIBILIDAD"
+      ],
+      "title": "Categoria",
+      "type": "string"
+    },
+    "vigencia_desde": {
+      "format": "date",
+      "title": "Vigencia Desde",
+      "type": "string"
+    },
+    "vigencia_hasta": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Vigencia Hasta"
+    },
+    "cuerpo": {
+      "maxLength": 12000,
+      "minLength": 400,
+      "title": "Cuerpo",
+      "type": "string"
+    },
+    "referencias": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Referencias",
+      "type": "array"
+    },
+    "idioma": {
+      "const": "es",
+      "default": "es",
+      "title": "Idioma",
+      "type": "string"
+    },
+    "checksum_cuerpo": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Checksum Cuerpo",
+      "type": "string"
+    }
+  },
+  "required": [
+    "doc_id",
+    "titulo",
+    "categoria",
+    "vigencia_desde",
+    "cuerpo",
+    "checksum_cuerpo"
+  ],
+  "title": "DocumentoNormativoContract",
+  "type": "object",
+  "x-contract": {
+    "name": "corpus.documento_normativo",
+    "version": "1.0.0",
+    "owner": "operaciones@aeronova.example",
+    "sla_hours": 720
+  }
+}

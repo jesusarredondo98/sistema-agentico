@@ -1,0 +1,10 @@
+# Dependencias solo de desarrollo y pruebas (PRD §3, §8.1).
+# NO entran en la imagen: .dockerignore excluye tests/ y este fichero no se copia
+# en el Dockerfile. Instalar en local con: pip install -r requirements-dev.txt
+-r requirements.txt
+
+pytest==8.4.2
+pytest-cov==6.1.1
+moto==5.1.4
+ruff==0.9.10
+Faker==40.37.0

@@ -1,0 +1,129 @@
+{
+  "_nota": "Fuente unica de la guia de uso (PRD 10.3). TODOS los ejemplos (destacados, grupos y demo) usan codigos de vuelo, PNR y codigos IATA que existen de verdad en el conjunto sembrado (seed 42) para la comprobacion U-14 y la demo en vivo: se pueden enviar tal cual.",
+  "destacados": [
+    {
+      "texto": "Dame el radar operativo de BCN",
+      "por_que": "Briefing completo del aeropuerto en una sola consulta: salidas y llegadas por estado, cancelaciones, demoras e impacto en pasajeros. Ofrece gráficas bajo demanda.",
+      "expected_tool": "radar_operativo"
+    },
+    {
+      "texto": "¿Qué vuelos que salen de MAD llevan más mascotas en cabina?",
+      "por_que": "Ranking de vuelos por mascotas y por menores a bordo. Ofrece una gráfica para cada uno, bajo demanda.",
+      "expected_tool": "ranking_cabina"
+    },
+    {
+      "texto": "¿Cómo van las demoras en las salidas de MEX?",
+      "por_que": "Puntualidad, demora media y máxima, motivos más frecuentes y los cinco vuelos más retrasados.",
+      "expected_tool": "resumen_demoras_ciudad"
+    },
+    {
+      "texto": "¿Cuántos vuelos nacionales e internacionales salen de MEX?",
+      "por_que": "Reparto de la operación de un aeropuerto entre vuelos nacionales e internacionales, con el desglose de los internacionales por país. Ofrece una gráfica bajo demanda.",
+      "expected_tool": "vuelos_nac_int"
+    },
+    {
+      "texto": "¿Hay vuelos desde MAD hacia Sudamérica?",
+      "por_que": "Comprueba si un aeropuerto tiene vuelos a un continente (Norteamérica, Centroamérica, Sudamérica o Europa), cuántos y a qué países. Ofrece una gráfica bajo demanda.",
+      "expected_tool": "vuelos_a_continente"
+    },
+    {
+      "texto": "Para la reserva GVJIYN, ¿qué compensación aplica si su vuelo se demora más de 3 horas?",
+      "por_que": "Consulta combinada: cruza los datos de una reserva real con la normativa interna de compensaciones.",
+      "expected_tool": ["obtener_datos_reserva", "buscar_politicas_rag"]
+    }
+  ],
+  "grupos": [
+    {
+      "capacidad": "Estado de vuelos",
+      "expected_tool": "consultar_estado_vuelo",
+      "ejemplos": [
+        "¿El vuelo AN1008 está demorado?",
+        "¿A qué hora sale el AN1010 y por qué puerta?",
+        "¿Se canceló el AN1002?"
+      ]
+    },
+    {
+      "capacidad": "Reservas (PNR)",
+      "expected_tool": "obtener_datos_reserva",
+      "ejemplos": [
+        "Dame los datos de la reserva GVJIYN",
+        "¿Cuántas maletas facturadas tiene el PNR YXMWYB?",
+        "¿La reserva GVJIYN es reembolsable?"
+      ]
+    },
+    {
+      "capacidad": "Políticas internas",
+      "expected_tool": "buscar_politicas_rag",
+      "ejemplos": [
+        "¿Puedo llevar un gato en cabina?",
+        "¿Qué compensación aplica por una demora de 4 horas?",
+        "¿Qué documentación necesita un menor que viaja solo?",
+        "¿Cuál es la política de cambio de fecha en tarifa básica?"
+      ]
+    },
+    {
+      "capacidad": "Consultas combinadas",
+      "expected_tool": ["obtener_datos_reserva", "buscar_politicas_rag"],
+      "ejemplos": [
+        "El PNR YXMWYB perdió conexión por la demora de su vuelo, ¿qué compensación le corresponde?",
+        "¿Puede viajar con su mascota en cabina en la reserva GVJIYN?"
+      ]
+    },
+    {
+      "capacidad": "Operación por aeropuerto (código IATA)",
+      "expected_tool": ["vuelos_por_ciudad", "radar_operativo", "resumen_demoras_ciudad", "ranking_cabina", "buscar_vuelos_ruta", "cobertura_reservas", "vuelos_a_continente", "vuelos_nac_int"],
+      "ejemplos": [
+        "¿Qué vuelos salen de MEX?",
+        "Dame el radar operativo de MAD",
+        "¿Cómo van las demoras en las salidas de BCN?",
+        "¿Qué vuelos que salen de BCN llevan más menores de edad en cabina?",
+        "¿Qué vuelos hay de BCN a TIJ?",
+        "¿Qué vuelos que salen de BCN no tienen ninguna reserva?",
+        "¿Hay vuelos desde MAD hacia Sudamérica?",
+        "¿Cuántos vuelos nacionales e internacionales salen de MEX?"
+      ]
+    },
+    {
+      "capacidad": "Operación por vuelo (código AN)",
+      "expected_tool": ["mascotas_por_vuelo", "pasajeros_de_vuelo", "ocupacion_vuelo", "perfil_reservas_vuelo"],
+      "ejemplos": [
+        "¿Cuántas mascotas van en cabina en el AN5913?",
+        "Muéstrame 5 pasajeros del AN5913",
+        "¿Cuál es la ocupación del AN5913 por tipo de pasajero y tarifa?",
+        "Desglosa las reservas del AN5913 por estado y canal de compra"
+      ]
+    }
+  ],
+  "no_puedo": [
+    "No emito, modifico ni cancelo reservas. Solo consulto.",
+    "No accedo a datos de pago ni a información de tarjetas.",
+    "No gestiono asignación de asientos ni embarque.",
+    "No consulto vuelos de otras aerolíneas."
+  ],
+  "consejos": [
+    "Incluye el código de vuelo (AN + 3 o 4 dígitos) o el PNR (6 caracteres) desde el primer mensaje: evitas un turno de ida y vuelta.",
+    "Puedes encadenar preguntas: si ya diste un PNR, no hace falta repetirlo en el mensaje siguiente.",
+    "Una pregunta concreta obtiene mejor respuesta que varias mezcladas en el mismo mensaje.",
+    "Para operación agregada usa códigos IATA de 3 letras (MEX, MAD, BCN); para consultas de un vuelo, el código AN."
+  ],
+  "demo": [
+    { "texto": "¿El vuelo AN1008 está demorado?", "expected_tool": "consultar_estado_vuelo" },
+    { "texto": "¿A qué hora sale el AN1010 y por qué puerta?", "expected_tool": "consultar_estado_vuelo" },
+    { "texto": "¿Se canceló el AN1002?", "expected_tool": "consultar_estado_vuelo" },
+    { "texto": "Dame los datos de la reserva GVJIYN", "expected_tool": "obtener_datos_reserva" },
+    { "texto": "¿Cuánto equipaje facturado tiene el PNR YXMWYB?", "expected_tool": "obtener_datos_reserva" },
+    { "texto": "¿Puedo llevar un gato en cabina?", "expected_tool": "buscar_politicas_rag" },
+    { "texto": "¿Qué compensación aplica por una demora de 4 horas?", "expected_tool": "buscar_politicas_rag" },
+    { "texto": "¿Cuál es el peso máximo del equipaje de mano?", "expected_tool": "buscar_politicas_rag" },
+    { "texto": "Dame el radar operativo de BCN", "expected_tool": "radar_operativo" },
+    { "texto": "¿Qué vuelos que salen de MAD llevan más mascotas en cabina?", "expected_tool": "ranking_cabina" },
+    { "texto": "¿Cómo van las demoras en las salidas de MEX?", "expected_tool": "resumen_demoras_ciudad" },
+    { "texto": "¿Cuál es la ocupación del AN5913 por tipo de pasajero y tarifa?", "expected_tool": "ocupacion_vuelo" },
+    { "texto": "Desglosa las reservas del AN5913 por estado y canal de compra", "expected_tool": "perfil_reservas_vuelo" },
+    { "texto": "¿Qué vuelos hay de BCN a TIJ?", "expected_tool": "buscar_vuelos_ruta" },
+    { "texto": "¿Qué vuelos que salen de BCN no tienen ninguna reserva?", "expected_tool": "cobertura_reservas" },
+    { "texto": "¿Hay vuelos desde MAD hacia Sudamérica?", "expected_tool": "vuelos_a_continente" },
+    { "texto": "¿Cuántos vuelos nacionales e internacionales salen de MEX?", "expected_tool": "vuelos_nac_int" },
+    { "texto": "Para la reserva GVJIYN, ¿qué compensación aplica si su vuelo se demora más de 3 horas?", "expected_tool": ["obtener_datos_reserva", "buscar_politicas_rag"] }
+  ]
+}

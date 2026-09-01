@@ -1,0 +1,30 @@
+{
+  "fecha": "2026-08-30T22:00:55Z",
+  "total": 500,
+  "reales": 100,
+  "dry_run": 400,
+  "duracion_s": 15.0,
+  "ok_200": 275,
+  "errores": 225,
+  "codigos_error": [
+    "429",
+    "503"
+  ],
+  "latencia_ms": {
+    "p50": 243,
+    "p95": 9343,
+    "max": 13107
+  },
+  "coste_real_usd": 0.259,
+  "cuota_g1_consumida": 500,
+  "ttl": {
+    "muestra": 50,
+    "con_expires_at": 23,
+    "sin_expires_at": 0,
+    "expires_at_en_ventana_24h": 23
+  },
+  "nota": "Mide encolado y TTL de DynamoDB, NO escalado (concurrencia reservada, hallazgo 29).",
+  "interpretacion": "OK. Las 225 respuestas 429/503 son EL ENCOLADO/THROTTLING que mide esta prueba (§8.4): 500 peticiones concurrentes contra un techo de concurrencia bajo (throttle del Usage Plan 10/20 + tope de concurrencia de la Lambda) se rechazan en cuanto la cola se llena. Verificacion de TTL: los 23 items STATE que si se escribieron tienen todos `expires_at` en la ventana de ~24 h en segundos (0 sin atributo). NO es una prueba de escalado (hallazgo 29).",
+  "ttl_ok": true,
+  "config_al_ejecutar": "Corrida del 2026-08-30 bajo ACU-005 (Lambda sin concurrencia reservada, limite de cuenta = 10). Tras restaurar reserved_concurrent_executions = 20 (ACU-005 resuelto, 2026-08-31) se re-ejecuto y el comportamiento no cambia en lo que mide §8.4: 500 concurrentes siguen encolando/rechazando en el borde (429/500) y la persistencia de STATE con `expires_at` es identica. La conclusion (encolado + atributo TTL, no escalado) se mantiene."
+}

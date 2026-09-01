@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Arquitectura propia frente a Bedrock AgentCore</title>
+<link rel="stylesheet" href="report.css">
+</head>
+<body>
+
+<header class="cover">
+  <p class="eyebrow">Documento de estudio &middot; No normativo</p>
+  <h1>Arquitectura propia frente a Bedrock AgentCore</h1>
+  <p class="lede">Qué cambia, qué no cambia y dónde está exactamente la línea que separa a una de la otra.</p>
+</header>
+
+<div class="wrap">
+
+  <div class="meta">
+    <div>
+      <div class="who">Jesús Arredondo</div>
+      <div class="when">26 de agosto de 2026</div>
+    </div>
+    <div class="right">
+      <div>Sistema agéntico conversacional AeroNova</div>
+      <div class="note">Base: <code>PRD.md</code> v2.7 &middot; Arnés: <code>Agents.md</code> v1.0 &middot; Acuerdo <code>ACU-001</code></div>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="value">29 s</div><div class="lab">Techo de turno de la arquitectura actual</div></div>
+    <div class="kpi"><div class="value">0,40 USD</div><div class="lab">Infraestructura AWS recurrente al mes</div></div>
+    <div class="kpi"><div class="value">7</div><div class="lab">Primitivas gestionadas que ofrece AgentCore</div></div>
+  </div>
+
+  <!-- ============================================================ 1 -->
+  <div class="section"><span class="n">1</span><h2>Qué se está comparando exactamente</h2></div>
+
+  <p>La pregunta «¿usamos AgentCore?» esconde una comparación que hay que enunciar con
+  precisión antes de responderla, porque formulada mal no tiene respuesta. No se comparan dos
+  frameworks de agentes ni dos modelos de lenguaje. Se comparan dos <strong>sustratos de
+  ejecución</strong>: el sitio donde vive el bucle del agente y las piezas que ese sitio te da
+  ya hechas.</p>
+
+  <div class="pipeline">
+    <div class="stage">
+      <div class="box">Navegador</div>
+      <div class="cap">UI estática en S3 + CloudFront.</div>
+    </div>
+    <div class="chev">&rsaquo;</div>
+    <div class="stage">
+      <div class="box">API GW REST</div>
+      <div class="cap">Corte duro a los <strong>29 s</strong>. Usage Plan y <code>x-api-key</code>.</div>
+    </div>
+    <div class="chev">&rsaquo;</div>
+    <div class="stage">
+      <div class="box">Lambda arm64</div>
+      <div class="cap">Contenedor, 2048 MB, concurrencia reservada 20.</div>
+    </div>
+    <div class="chev">&rsaquo;</div>
+    <div class="stage">
+      <div class="box">LangGraph</div>
+      <div class="cap">Grafo ReAct propio. Memoria en DynamoDB.</div>
+    </div>
+    <div class="chev">&rsaquo;</div>
+    <div class="stage">
+      <div class="box">Anthropic</div>
+      <div class="cap"><code>claude-sonnet-5</code> por API directa.</div>
+    </div>
+  </div>
+  <p class="caption">Arquitectura actual, según §2.1 del PRD. Bedrock aparece solo como proveedor de
+  embeddings Titan V2, fuera de este camino.</p>
+
+  <div class="pipeline">
+    <div class="stage">
+      <div class="box">Cliente</div>
+      <div class="cap">Invoca el runtime, no un endpoint HTTP propio.</div>
+    </div>
+    <div class="chev">&rsaquo;</div>
+    <div class="stage">
+      <div class="box">AgentCore Runtime</div>
+      <div class="cap">Sesión aislada en microVM. Sesiones largas y respuesta en streaming.</div>
+    </div>
+    <div class="chev">&rsaquo;</div>
+    <div class="stage">
+      <div class="box">LangGraph</div>
+      <div class="cap"><strong>El mismo grafo.</strong> El runtime lo hospeda, no lo sustituye.</div>
+    </div>
+    <div class="chev">&rsaquo;</div>
+    <div class="stage">
+      <div class="box">Primitivas</div>
+      <div class="cap">Memory, Gateway, Identity, Observability.</div>
+    </div>
+    <div class="chev">&rsaquo;</div>
+    <div class="stage">
+      <div class="box">Anthropic</div>
+      <div class="cap">El mismo modelo, si así se decide.</div>
+    </div>
+  </div>
+  <p class="caption">La misma aplicación sobre AgentCore. Lo que cambia es el sustrato y las piezas
+  gestionadas, no el framework ni el modelo.</p>
+
+  <!-- ============================================================ 2 -->
+  <div class="section"><span class="n">2</span><h2>Tres confusiones que conviene despejar antes</h2></div>
+
+  <ul class="findings">
+    <li><strong>AgentCore no sustituye a LangGraph.</strong> El runtime es agnóstico de
+        framework: hospeda LangGraph, CrewAI, LlamaIndex, Strands o un bucle escrito a mano.
+        Migrar no significaría reescribir <code>src/agent/graph.py</code>; significaría
+        cambiar dónde se ejecuta.</li>
+    <li><strong>AgentCore no obliga a usar modelos de Bedrock.</strong> Es agnóstico de
+        modelo. La llamada a la API de Anthropic con <code>claude-sonnet-5</code> puede
+        conservarse tal cual, con su clave en SSM. Esto importa mucho más de lo que parece, y
+        la sección 5 explica por qué.</li>
+    <li><strong>AgentCore no es Bedrock Agents con otro nombre.</strong> Son dos productos con
+        filosofías opuestas. En <em>Bedrock Agents</em> declaras <em>action groups</em> y AWS
+        orquesta por ti: pierdes el control del bucle. En <em>AgentCore</em> traes tu propia
+        orquestación y AWS pone el runtime y las primitivas. Para un PRD que especifica el
+        grafo nodo a nodo (§5.1) y el límite de rondas al detalle (§5.2), la diferencia es
+        decisiva: Bedrock Agents sería incompatible con el diseño; AgentCore no.</li>
+  </ul>
+
+  <!-- ============================================================ 3 -->
+  <div class="section"><span class="n">3</span><h2>Comparación dimensión a dimensión</h2></div>
+
+  <table class="data">
+    <thead>
+      <tr><th>Dimensión</th><th>Arquitectura actual</th><th>Con AgentCore</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Sustrato de ejecución</td>
+        <td>Lambda de contenedor <code>arm64</code>, 2048 MB</td>
+        <td>AgentCore Runtime, sesión aislada en microVM</td>
+      </tr>
+      <tr class="highlight">
+        <td>Duración máxima de un turno <span class="badge">Diferencia mayor</span></td>
+        <td><strong>29 s</strong>, corte duro de API Gateway REST</td>
+        <td><strong>Horas</strong>, orientado a sesiones largas</td>
+      </tr>
+      <tr>
+        <td>Respuesta en streaming</td>
+        <td>Descartada explícitamente al conservar REST (§0.3)</td>
+        <td>Soportada de forma nativa</td>
+      </tr>
+      <tr>
+        <td>Framework del agente</td>
+        <td>LangGraph, elegido por el PRD</td>
+        <td>LangGraph, sin cambios</td>
+      </tr>
+      <tr>
+        <td>Modelo de razonamiento</td>
+        <td><code>claude-sonnet-5</code> por API de Anthropic</td>
+        <td>El mismo, o cualquier otro</td>
+      </tr>
+      <tr>
+        <td>Memoria conversacional</td>
+        <td>DynamoDB a mano: PK/SK, TTL, ventana de 8 mensajes (§4.5)</td>
+        <td>AgentCore Memory: corto y largo plazo gestionados</td>
+      </tr>
+      <tr>
+        <td>Registro de herramientas</td>
+        <td>Lista Python en <code>src/tools/__init__.py</code></td>
+        <td>AgentCore Gateway expone APIs y Lambdas como herramientas MCP</td>
+      </tr>
+      <tr>
+        <td>Autenticación</td>
+        <td><code>x-api-key</code> + Usage Plan (D-03)</td>
+        <td>AgentCore Identity, con OAuth y acceso delegado</td>
+      </tr>
+      <tr>
+        <td>Observabilidad</td>
+        <td>Powertools, EMF y LangSmith, montados a mano (§11)</td>
+        <td>Trazas OpenTelemetry integradas de serie</td>
+      </tr>
+      <tr>
+        <td>Techo de gasto</td>
+        <td><strong>Estructural</strong>: cuota de 2.000 peticiones al mes (§2.3)</td>
+        <td>Por consumo; el techo hay que construirlo aparte</td>
+      </tr>
+      <tr>
+        <td>Coste de infraestructura</td>
+        <td><strong>≈ 0,40 USD/mes</strong>, medido (§9.3)</td>
+        <td>Por vCPU y memoria consumidas; sin medir en este caso</td>
+      </tr>
+      <tr>
+        <td>Superficie de código propio</td>
+        <td>Alta: memoria, límites, identidad y observabilidad se escriben</td>
+        <td>Menor: cuatro de esas piezas vienen dadas</td>
+      </tr>
+      <tr>
+        <td>Portabilidad fuera de AWS</td>
+        <td>Alta: LangGraph en un contenedor corre en cualquier sitio</td>
+        <td>Menor: el runtime y las primitivas son de AWS</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="caption">La columna izquierda está verificada contra el PRD v2.7 y es citable. La derecha
+  procede de conocimiento de producto y debe contrastarse con la documentación vigente de AWS: ver
+  sección 8.</p>
+
+  <!-- ============================================================ 4 -->
+  <div class="section"><span class="n">4</span><h2>Las tres diferencias que de verdad cambian el diseño</h2></div>
+
+  <p>De la tabla anterior, la mayoría de filas son matices de implementación. Tres no lo son:
+  cambian qué producto se puede construir, no cómo se construye.</p>
+
+  <div class="subsection"><h3>4.1&nbsp; El muro de los 29 segundos</h3></div>
+
+  <p>El techo de 29 s no es un parámetro del PRD: es el <strong>eje sobre el que gira todo el
+  diseño</strong>. API Gateway REST corta la integración a los 29 s con independencia del
+  <code>timeout</code> que se configure en la Lambda, y de ahí se derivan, en cascada, media
+  docena de decisiones del documento.</p>
+
+  <table class="data">
+    <thead>
+      <tr><th>Decisión del PRD</th><th>Sección</th><th>Existe por el muro de 29 s</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>timeout</code> de la Lambda fijado a 29 s</td><td>§2.2</td><td>Un valor mayor solo desplaza quién emite el error</td></tr>
+      <tr><td>Presupuesto de latencia repartido en cinco tramos</td><td>§2.2</td><td>Hay que caber, y se contabiliza tramo a tramo</td></tr>
+      <tr><td><code>MAX_TOOL_ROUNDS = 3</code></td><td>§5.2</td><td>Cuatro llamadas al modelo como máximo por consulta</td></tr>
+      <tr><td>Ping de calentamiento cada 5 minutos</td><td>§2.2</td><td>El arranque en frío es el único riesgo real de superar los 29 s</td></tr>
+      <tr><td>Streaming de tokens descartado</td><td>§0.3</td><td>Consecuencia directa de conservar REST</td></tr>
+      <tr><td>Índice RAG obligado a pesar menos de 20 MB</td><td>§6.3</td><td>La descarga tiene que caber en el arranque</td></tr>
+    </tbody>
+  </table>
+  <p class="caption">Seis decisiones que no son independientes entre sí: todas cuelgan de la misma
+  restricción. AgentCore Runtime la levanta.</p>
+
+  <p>Ahora bien, aquí está el punto que hace que la respuesta sea la contraria de la que se
+  esperaría. <strong>Este producto no necesita más de 29 segundos.</strong> El usuario es un
+  agente de mostrador con un pasajero delante, y el PRD fija como métrica de éxito una latencia
+  p95 <strong>≤ 8 s</strong> (§1.3). Es un requisito de producto, no una limitación tolerada.
+  Un agente que pudiera pensar durante ocho horas no serviría de nada aquí: nadie va a esperar.</p>
+
+  <p>Dicho de otro modo: AgentCore levanta un muro contra el que este caso de uso
+  <strong>no está chocando</strong>. Y la restricción que sí duele —cuatro llamadas al modelo
+  como máximo— tampoco desaparecería, porque no viene del muro sino del presupuesto: cada
+  ronda extra cuesta dinero (§9.2, palanca 4).</p>
+
+  <div class="subsection"><h3>4.2&nbsp; Memoria gestionada frente a memoria con lógica de negocio dentro</h3></div>
+
+  <p>A primera vista, AgentCore Memory sustituye limpiamente a la tabla <code>aeronova-memory</code>
+  y ahorra el trabajo de §4.5: la clave compuesta, el relleno de ceros en la <em>sort key</em>,
+  el TTL en segundos, la ventana de ocho mensajes. Todo eso es fontanería, y delegarla es
+  atractivo.</p>
+
+  <p>El problema es que en esa tabla no solo hay memoria. Hay <strong>tres controles que el
+  PRD colocó ahí deliberadamente</strong>, y que una memoria gestionada te daría que
+  reconstruir por fuera:</p>
+
+  <ul class="findings">
+    <li><strong>El cortacircuitos de coste por sesión.</strong> El ítem <code>STATE</code>
+        acumula <code>cost_usd_acumulado</code> y, superados 0,25 USD, la sesión se rechaza con
+        429 (§12A.4). Es lo único que impide que una sola sesión se coma el presupuesto del mes,
+        porque la cuota mensual protege el total pero no el reparto.</li>
+    <li><strong>La comprobación de propiedad de sesión.</strong> Si el <code>employee_id</code>
+        no coincide con el dueño de la sesión, 403 (§4.5). Sin ella, cualquier portador de la
+        API key lee la conversación de otro empleado: fue el hallazgo 13 del PMO.</li>
+    <li><strong>La separación entre estado y mensajes.</strong> El <code>pnr_activo</code> vive
+        en <code>STATE</code>, no en el historial. Por eso el truncado por presupuesto L-4 puede
+        descartar mensajes antiguos <em>sin</em> que el agente olvide el PNR, y por eso la
+        interfaz puede prometerle al usuario que «los datos de la reserva se conservan» (§10.2).
+        Es una decisión de diseño, no un detalle de almacenamiento.</li>
+  </ul>
+
+  <p>Una memoria gestionada te da memoria. No te da tu cortacircuitos de coste. La migración
+  sería más barata en fontanería y más cara en lógica de la que no se habla hasta que falta.</p>
+
+  <div class="subsection"><h3>4.3&nbsp; Coste: previsible por construcción frente a proporcional al uso</h3></div>
+
+  <p>Este es el punto donde la comparación se vuelve incómoda, y conviene decirlo sin adornos.</p>
+
+  <p>La arquitectura actual gasta <strong>0,40 USD al mes</strong> de infraestructura AWS, y ese
+  número no es una estimación optimista: sale del desglose de §9.3, partida por partida, para
+  las 2.000 consultas del techo mensual. Lambda escala a cero, DynamoDB es
+  <code>PAY_PER_REQUEST</code>, CloudFront cae en el nivel gratuito. Con cero tráfico, el coste
+  es cero.</p>
+
+  <p>Más importante todavía: el techo de gasto es <strong>estructural</strong>. La cuota de
+  2.000 peticiones al mes del Usage Plan (§2.3) no depende de que nadie vigile nada, y esa
+  propiedad se ganó a pulso: el hallazgo 38 del PMO detectó que con <code>period = DAY</code>
+  el mismo diseño permitía ~525 USD/mes, <strong>26 veces el techo acordado</strong>.</p>
+
+  <p>AgentCore Runtime factura por consumo de vCPU y memoria por segundo. A este volumen
+  —2.000 consultas al mes, turnos de segundos— es perfectamente posible que salga barato, o
+  incluso más barato. Pero <strong>«posible» no es el estándar de este proyecto</strong>: el
+  PRD entero está construido sobre números verificados, con un margen deliberado entre el
+  gasto previsto (9,20 USD) y el techo duro (17,90 USD). Sustituir el sustrato invalida §9.3 y
+  §9.4 completas y obliga a medir de nuevo, no a suponer.</p>
+
+  <p>Y hay una pérdida cualitativa que no se recupera midiendo: el techo estructural
+  desaparece. Un límite de gasto por consumo hay que construirlo con presupuestos y alarmas,
+  que <em>avisan</em>, mientras que una cuota <em>impide</em>. No es la misma clase de control.</p>
+
+  <!-- ============================================================ 5 -->
+  <div class="section"><span class="n">5</span><h2>Lo que no cambiaría en absoluto</h2></div>
+
+  <p>Conviene dimensionar el alcance real de una migración, porque es bastante menor de lo que
+  sugiere la palabra. Toda la mitad de datos del PRD queda intacta.</p>
+
+  <div class="catalog">
+    <div>
+      <div class="group">
+        <div class="head">Datos y gobierno — sin cambios</div>
+        <ul>
+          <li>Arquitectura medallion Bronze / Silver / Gold</li>
+          <li>Data contracts Pydantic y expectativas E-01 a E-09</li>
+          <li>Cuarentena y manifiestos de linaje</li>
+          <li>Índice LanceDB en S3 con puntero <code>CURRENT</code></li>
+          <li>Embeddings Titan V2 por Bedrock</li>
+          <li>Rollback del índice en segundos</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="group">
+        <div class="head">Agente y calidad — sin cambios</div>
+        <ul>
+          <li>Grafo LangGraph y <code>AgentState</code></li>
+          <li>Las tres herramientas y su sobre <code>ToolResult</code></li>
+          <li>Defensas D-1 a D-6 contra inyección</li>
+          <li>Límites L-1 a L-6 de entrada</li>
+          <li>Golden dataset: 13 familias y 9 umbrales</li>
+          <li><strong>Caché de prompt con TTL de 1 hora</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <p>El último punto merece detenerse. La caché de prompt es <strong>la principal palanca de
+  coste del sistema</strong>: un 25,2 % de ahorro, elegido con criterio —el TTL se ajusta al
+  hueco entre peticiones, ~20 minutos, no a la duración de la conversación (§5.3)—. Es una
+  capacidad de la API de Anthropic, no del sustrato. Mientras la llamada al modelo siga
+  saliendo hacia Anthropic, <strong>la caché sobrevive a la migración</strong>. Solo se
+  perdería si la migración aprovechara para pasar los modelos a Bedrock, que es una decisión
+  distinta y separable.</p>
+
+  <!-- ============================================================ 6 -->
+  <div class="section"><span class="n">6</span><h2>Qué habría que rehacer del PRD</h2></div>
+
+  <table class="data">
+    <thead>
+      <tr><th>Sección</th><th>Qué contiene</th><th class="num">Impacto</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>§2.1 &ndash; §2.3</td><td>Topología, parámetros de Lambda, API Gateway y Usage Plan</td><td class="num">Reescritura</td></tr>
+      <tr><td>§9.3 &ndash; §9.5</td><td>Modelo de coste, presupuesto y guardarraíles</td><td class="num">Reescritura</td></tr>
+      <tr><td>§4.5</td><td>Esquema de memoria, TTL y propiedad de sesión</td><td class="num">Reescritura</td></tr>
+      <tr><td>§13</td><td>Runbook de despliegue en dos stacks de Terraform</td><td class="num">Reescritura</td></tr>
+      <tr><td>§2.5</td><td>Permisos IAM del rol de ejecución</td><td class="num">Revisión</td></tr>
+      <tr><td>§11</td><td>Observabilidad, métricas EMF y alarmas</td><td class="num">Revisión</td></tr>
+      <tr><td>§12A.4</td><td>Cortacircuitos de coste por sesión</td><td class="num">Revisión</td></tr>
+      <tr><td>§8.4</td><td>Prueba de carga y su modo <code>dry_run</code></td><td class="num">Revisión</td></tr>
+      <tr><td>§5, §6, §6A, §7, §8.2</td><td>Grafo, RAG, medallion, datos sintéticos y golden dataset</td><td class="num">Sin cambios</td></tr>
+    </tbody>
+  </table>
+  <p class="caption">Cuatro secciones a reescribir y cuatro a revisar, sobre dieciséis. El corazón del
+  PRD —cómo razona el agente y cómo se gobiernan los datos— no se toca.</p>
+
+  <!-- ============================================================ 7 -->
+  <div class="section"><span class="n">7</span><h2>Cuándo cambiaría la respuesta</h2></div>
+
+  <p>La conclusión de este documento no es «AgentCore no sirve», sino que
+  <strong>resuelve problemas que este producto no tiene</strong>. Eso puede dejar de ser cierto,
+  y conviene saber reconocer cuándo. Estos son los disparadores concretos:</p>
+
+  <ul class="findings">
+    <li><strong>Un turno deja de caber en 29 segundos.</strong> Si aparece una consulta que
+        exige encadenar seis o siete herramientas, o esperar a un sistema externo lento, el
+        muro pasa de teórico a real y AgentCore se vuelve la respuesta natural.</li>
+    <li><strong>Se pide streaming de tokens.</strong> Está descartado hoy por conservar REST
+        (§0.3). Si la percepción de velocidad se vuelve un requisito, el sustrato actual no lo da.</li>
+    <li><strong>El agente pasa a escribir, no solo a consultar.</strong> Emitir o modificar
+        reservas rompe el radio de explosión acotado de D-3, y el PRD ya avisa de que exige
+        rehacer el análisis de amenazas (R-20, impacto crítico). En ese escenario, la identidad
+        delegada y los permisos por agente de AgentCore Identity dejan de ser un lujo.</li>
+    <li><strong>Aparecen varios agentes que deben coordinarse.</strong> Un solo agente con tres
+        herramientas no necesita infraestructura de agentes; media docena colaborando, sí.</li>
+    <li><strong>Las herramientas se multiplican o se comparten.</strong> Con tres, un registro
+        en Python sobra. Con treinta, o con herramientas que otros equipos deban reutilizar, un
+        Gateway con MCP deja de ser burocracia y empieza a ahorrar trabajo.</li>
+    <li><strong>El volumen crece dos órdenes de magnitud.</strong> A 2.000 consultas al mes,
+        Lambda escalando a cero es imbatible. A 200.000, la comparación de costes hay que
+        rehacerla entera y podría invertirse.</li>
+  </ul>
+
+  <p>Ninguno de los seis se cumple hoy. Y hay una asimetría que conviene tener presente:
+  <strong>la arquitectura actual es la más fácil de abandonar</strong>. Un grafo LangGraph
+  dentro de un contenedor corre en Lambda, en AgentCore Runtime, en Fargate o en una máquina
+  bajo la mesa. Empezar por el sustrato más simple y portable no cierra ninguna puerta; empezar
+  por el gestionado sí acopla.</p>
+
+  <!-- ============================================================ 8 -->
+  <div class="keep">
+  <div class="section"><span class="n">8</span><h2>Qué está verificado y qué debes comprobar tú</h2></div>
+
+  <p>Un documento de estudio que no distingue sus fuentes vale poco, así que aquí va la
+  separación explícita.</p>
+  </div>
+
+  <div class="qtable">
+    <div class="title">Verificado contra <code>documents/PRD.md</code> v2.7 &mdash; citable</div>
+    <table class="data">
+      <thead><tr><th>Afirmación</th><th>Dónde</th></tr></thead>
+      <tbody>
+        <tr><td>El PRD no menciona AgentCore ni Bedrock Agents en ninguna de sus 1.578 líneas</td><td><code>grep</code>: 0 resultados</td></tr>
+        <tr><td>Bedrock se usa solo para embeddings Titan V2</td><td>13 menciones, todas de embeddings</td></tr>
+        <tr><td>Único permiso de Bedrock: <code>InvokeModel</code> sobre el ARN del modelo</td><td>§2.5</td></tr>
+        <tr><td>Corte duro de 29 s y sus seis decisiones derivadas</td><td>§2.2, §5.2, §6.3, §0.3</td></tr>
+        <tr><td>Infraestructura AWS recurrente ≈ 0,40 USD/mes</td><td>§9.3</td></tr>
+        <tr><td>Techo estructural por cuota mensual; con <code>DAY</code> serían ~525 USD/mes</td><td>§2.3, hallazgo 38</td></tr>
+        <tr><td>Caché de prompt con TTL de 1 h: ahorro del 25,2 %</td><td>§5.3, §9.3</td></tr>
+        <tr><td>Latencia p95 ≤ 8 s como métrica de éxito</td><td>§1.3</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ul class="findings">
+    <li><strong>Contrasta con la documentación vigente de AWS</strong> todo lo relativo a
+        AgentCore: la lista de primitivas, la duración máxima de sesión, los límites de
+        <em>payload</em>, la disponibilidad por región y, muy especialmente, las
+        <strong>tarifas</strong>. Este documento describe el <em>modelo</em> de precios
+        —consumo de vCPU y memoria por segundo— y deliberadamente <strong>no cita ninguna
+        cifra</strong>, porque una comparación de costes con números recordados sería peor que
+        no tener comparación.</li>
+    <li><strong>Si algún día se evalúa en serio</strong>, el criterio de decisión debería ser
+        el mismo que usa el PRD en el resto de sus comparaciones (§9.2): coste mensual medido
+        frente a la alternativa, no idoneidad conceptual. Fue lo que descartó OpenSearch
+        Serverless y Streamlit en Fargate, y es una disciplina que conviene no abandonar
+        justo en la decisión más grande.</li>
+  </ul>
+
+  <div class="keep">
+  <div class="section"><span class="n">9</span><h2>En una frase</h2></div>
+
+  <p>La arquitectura actual y AgentCore no se diferencian en el framework ni en el modelo
+  —ambos serían idénticos—, sino en <strong>quién sostiene la sesión y quién pone las piezas
+  de agente</strong>; y para un asistente de mostrador que debe responder en ocho segundos,
+  gastar menos de medio dólar al mes y no poder escribir nada, el sustrato simple y portable
+  es el que encaja, mientras que las ventajas del gestionado —sesiones largas, streaming,
+  identidad delegada, coordinación multiagente— resuelven problemas que este producto todavía
+  no tiene.</p>
+  </div>
+
+</div><!-- /wrap -->
+</body>
+</html>

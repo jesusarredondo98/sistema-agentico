@@ -1,0 +1,18 @@
+{
+  "_nota": "Identificadores reales del conjunto sembrado (seed 42, perfil dev) para la demo. Verificados contra el endpoint. No son datos personales reales: son sintéticos.",
+  "vuelos": [
+    { "codigo": "AN1002", "ruta": "CDG → CUN", "estado": "A tiempo" },
+    { "codigo": "AN1008", "ruta": "YYZ → LIM", "estado": "Demorado" },
+    { "codigo": "AN1049", "ruta": "MIA → BCN", "estado": "Cancelado" },
+    { "codigo": "AN1129", "ruta": "GDL → DFW", "estado": "Embarcando" },
+    { "codigo": "AN1001", "ruta": "LAX → BOG", "estado": "En vuelo" },
+    { "codigo": "AN1176", "ruta": "MIA → LAX", "estado": "Aterrizado" }
+  ],
+  "reservas": [
+    { "pnr": "YXMWYB", "estado": "Confirmada", "tarifa": "Premium", "vuelo": "AN2424" },
+    { "pnr": "ACW37K", "estado": "En espera", "tarifa": "Básica", "vuelo": "AN5404" },
+    { "pnr": "A2I6D4", "estado": "Volada", "tarifa": "Básica", "vuelo": "AN5121" },
+    { "pnr": "R5HX35", "estado": "Cancelada", "tarifa": "Business", "vuelo": "AN2248" },
+    { "pnr": "0QY17A", "estado": "No-show", "tarifa": "Business", "vuelo": "AN3465" }
+  ]
+}

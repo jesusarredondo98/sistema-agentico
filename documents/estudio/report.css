@@ -1,0 +1,337 @@
+/* ============================================================================
+   Design system — Informe técnico
+   Extraído de pipeline_summary.pdf (HeadlessChrome -> Skia/PDF).
+   Paleta obtenida del content stream del PDF original, no estimada.
+   ============================================================================ */
+
+:root {
+  /* -- Paleta (valores exactos del PDF de referencia) -- */
+  --navy:        #1B3A5C;   /* banda de portada, barras de sección, cabecera de tabla */
+  --navy-deep:   #122A44;   /* cabecera de tabla anidada, refuerzo de la portada */
+  --accent:      #2E75B6;   /* insignias, barras de subsección, enlaces, viñetas */
+  --accent-soft: #9FC0E0;   /* filetes y bordes de acento */
+  --tint:        #E7EFF7;   /* franja alterna de tabla, relleno de cajas */
+  --tint-strong: #CFE0F0;   /* etapas del diagrama de flujo */
+  --rule:        #C9D3DE;   /* reglas y bordes de tabla */
+  --ink:         #222222;   /* texto principal */
+  --ink-code:    #2B2B2B;   /* texto monoespaciado */
+  --muted:       #595959;   /* pies de tabla, texto secundario */
+  --muted-soft:  #8C96A3;   /* etiquetas tenues */
+  --highlight:   #FFF3D6;   /* fila destacada */
+  --paper:       #FFFFFF;
+
+  /* -- Tipografía -- */
+  --sans: "Calibri", "Carlito", "Lato", "Segoe UI", system-ui, sans-serif;
+  --mono: "Menlo", "DejaVu Sans Mono", "Consolas", ui-monospace, monospace;
+
+  /* Escala en pt: el destino es impresión, no pantalla */
+  --fs-body:     9.5pt;
+  --fs-small:    8.2pt;
+  --fs-micro:    7.4pt;
+  --fs-h1:      27pt;
+  --fs-h2:      14pt;
+  --fs-h3:      10.5pt;
+  --fs-kpi:     21pt;
+}
+
+/* ---------------------------------------------------------------- página -- */
+
+@page {
+  size: letter;
+  margin: 16mm 0 14mm;          /* el contenido gestiona su propio margen lateral */
+}
+@page :first { margin-top: 0; } /* la portada sangra hasta el borde superior */
+
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+  line-height: 1.45;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+/* Canal de contenido. La portada lo desborda a propósito. */
+.wrap { padding: 0 16mm; }
+
+/* -------------------------------------------------------------- portada -- */
+
+.cover {
+  background: var(--navy);
+  color: #fff;
+  padding: 30mm 16mm 14mm;
+  margin-bottom: 10mm;
+  border-bottom: 4pt solid var(--accent);
+}
+.cover .eyebrow {
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--accent-soft);
+  margin: 0 0 6mm;
+}
+.cover h1 {
+  font-family: var(--sans);
+  font-weight: 300;                    /* Calibri Light: el título es ligero, no bold */
+  font-size: var(--fs-h1);
+  line-height: 1.1;
+  margin: 0 0 5mm;
+  letter-spacing: -.01em;
+}
+.cover .lede {
+  font-size: 11pt;
+  font-weight: 300;
+  color: #DCE7F2;
+  margin: 0;
+  max-width: 135mm;
+}
+
+/* ------------------------------------------------------------ metadatos -- */
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10mm;
+  padding-bottom: 4mm;
+  border-bottom: .75pt solid var(--rule);
+  margin-bottom: 8mm;
+  font-size: var(--fs-small);
+}
+.meta .who   { font-weight: 700; color: var(--ink); }
+.meta .when,
+.meta .note  { color: var(--muted); }
+.meta .right { text-align: right; }
+.meta a { color: var(--accent); text-decoration: none; }
+
+/* ------------------------------------------------------------------ KPI -- */
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10mm;
+  margin: 0 0 10mm;
+}
+.kpi { border-top: 1.5pt solid var(--navy); padding-top: 3mm; }
+.kpi .value {
+  font-size: var(--fs-kpi);
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.05;
+  margin-bottom: 1.5mm;
+}
+.kpi .lab {
+  font-size: var(--fs-micro);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+}
+
+/* -------------------------------------------------------------- sección -- */
+
+.section {
+  display: flex;
+  align-items: center;
+  gap: 4mm;
+  background: var(--navy);
+  color: #fff;
+  padding: 3.2mm 4mm;
+  margin: 9mm 0 5mm;
+  border-radius: 1pt;
+  break-after: avoid;
+  page-break-after: avoid;
+}
+.section .n {
+  flex: 0 0 auto;
+  min-width: 6mm;
+  text-align: center;
+  background: var(--accent);
+  color: #fff;
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  padding: .8mm 1.6mm;
+  border-radius: 1pt;
+}
+.section h2 {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -.005em;
+}
+
+/* Subsección: filete de acento a la izquierda */
+.subsection {
+  display: flex;
+  align-items: center;
+  gap: 3mm;
+  margin: 7mm 0 3mm;
+  break-after: avoid;
+  page-break-after: avoid;
+}
+.subsection::before {
+  content: "";
+  width: 2.2pt;
+  align-self: stretch;
+  min-height: 5mm;
+  background: var(--accent);
+}
+.subsection h3 {
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  margin: 0;
+  color: var(--ink);
+}
+
+/* --------------------------------------------------- diagrama de flujo -- */
+
+.pipeline {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: start;
+  gap: 0;
+  margin: 0 0 6mm;
+}
+.stage { padding: 0 1.5mm; }
+.stage .box {
+  background: var(--tint-strong);
+  border: .75pt solid var(--accent-soft);
+  border-radius: 1pt;
+  text-align: center;
+  font-weight: 700;
+  font-size: var(--fs-small);
+  color: var(--navy);
+  padding: 3mm 2mm;
+  margin-bottom: 2.5mm;
+}
+.stage .cap { font-size: var(--fs-micro); color: var(--muted); line-height: 1.4; }
+.chev {
+  align-self: start;
+  padding-top: 3.4mm;
+  color: var(--accent);
+  font-size: 11pt;
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+/* ------------------------------------------------------- lista con viñeta -- */
+
+ul.findings { list-style: none; margin: 0 0 5mm; padding: 0; }
+ul.findings > li {
+  position: relative;
+  padding-left: 6mm;
+  margin-bottom: 3.2mm;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+ul.findings > li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1.4mm;
+  width: 2.4mm;
+  height: 2.4mm;
+  background: var(--accent);
+}
+
+/* ------------------------------------------------ catálogo en dos columnas -- */
+
+.catalog { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8mm; margin-bottom: 4mm; }
+.group { break-inside: avoid; page-break-inside: avoid; margin-bottom: 5mm; }
+.group .head {
+  background: var(--accent);
+  color: #fff;
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 1.8mm 3mm;
+  margin-bottom: 2.5mm;
+}
+.group ul { margin: 0; padding-left: 5mm; }
+.group li { margin-bottom: 1.2mm; }
+
+/* --------------------------------------------------------------- tablas -- */
+
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-small);
+  margin: 0 0 2.5mm;
+  break-inside: auto;
+}
+table.data thead th {
+  background: var(--navy);
+  color: #fff;
+  font-weight: 700;
+  text-align: left;
+  padding: 2.4mm 3mm;
+  border: none;
+}
+table.data tbody td {
+  padding: 2.4mm 3mm;
+  border: .75pt solid var(--rule);
+  vertical-align: top;
+}
+table.data tbody tr:nth-child(even) td { background: var(--tint); }
+table.data thead { display: table-header-group; }  /* repite la cabecera al partir página */
+table.data tr { break-inside: avoid; page-break-inside: avoid; }
+
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+tr.highlight td { background: var(--highlight) !important; font-weight: 700; }
+.badge {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  letter-spacing: .08em;
+  padding: .5mm 1.8mm;
+  margin-left: 2mm;
+  border-radius: 1pt;
+  vertical-align: middle;
+}
+
+/* Tabla de resultados con barra de título */
+.qtable { margin-bottom: 6mm; break-inside: avoid; page-break-inside: avoid; }
+.qtable .title {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: var(--fs-small);
+  padding: 2.2mm 3mm;
+}
+.qtable table.data thead th { background: var(--navy-deep); }
+.qtable table.data { margin-bottom: 0; }
+
+/* Pie de tabla */
+.caption {
+  font-size: var(--fs-micro);
+  color: var(--muted);
+  line-height: 1.45;
+  margin: 0 0 6mm;
+}
+
+/* ----------------------------------------------------------------- misc -- */
+
+code, .mono {
+  font-family: var(--mono);
+  font-size: .92em;
+  color: var(--ink-code);
+  background: #F1F5FA;
+  padding: .3mm 1mm;
+  border-radius: 1pt;
+}
+th code, thead code, .section code, .cover code,
+.group .head code, .qtable .title code { background: rgba(255,255,255,.16); color: #fff; }
+
+a { color: var(--accent); text-decoration: none; }
+strong { font-weight: 700; }
+em { font-style: italic; }
+p { margin: 0 0 3mm; }
+
+.page-break { break-before: page; page-break-before: always; }
+.keep      { break-inside: avoid; page-break-inside: avoid; }

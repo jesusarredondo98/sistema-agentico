@@ -1,0 +1,88 @@
+# ============================================================================
+# .gitignore — Sistema agéntico AeroNova
+# Fundado en el PRD: §16 (ningún secreto en Git), S-03 (estado de Terraform
+# fuera de Git), §13 paso 2 (la clave nunca pasa por un .tfvars) y §8.3b
+# (caché en disco del runner del golden dataset).
+# ============================================================================
+
+# ── Secretos y credenciales ─────────────────────────── §16, Definición de Terminado
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+credentials
+# Un .tfvars puede acabar llevando la clave de Anthropic. El runbook la carga
+# con `aws ssm put-parameter`, nunca por variable de Terraform (§13, paso 2).
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# ── Estado de Terraform ─────────────────────────────── S-03: se versiona FUERA de Git
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+crash.*.log
+tfplan
+*.tfplan
+# NOTA: .terraform.lock.hcl SÍ se versiona. Fija las versiones de los proveedores,
+# con la misma lógica por la que requirements.txt usa `==` (§2.6). No lo ignores.
+
+# ── Datos sintéticos y artefactos del pipeline ──────── §7: 190 k registros
+# Se regeneran de forma determinista con `--seed 42`; su sitio es S3, no el repo.
+data/
+*.parquet
+*.jsonl
+*.lance/
+_manifest.local.json
+
+# ── Caché y salidas de pruebas ──────────────────────── §8.3b
+tests/golden/.cache/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# ── Sistema operativo y editores ────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# ============================================================================
+# Lo que SÍ se versiona, aunque se genere — son entregables de §16:
+#   docs/contracts/*.schema.json y CONTRACTS.md   → entregable §16.4
+#   ui/examples.json                              → entregable §16.6
+#   memory/                                       → estado y acuerdos del proyecto
+#   .terraform.lock.hcl                           → reproducibilidad del despliegue
+#   documents/*.pdf                               → entregable §16.7
+# ============================================================================
+
+# Artefactos de editores/IDE ajenos
+.Rhistory
+
+# ── Entregable con credenciales de demo (uso interno) ───────────────────────
+# Esta versión del entregable Tarea 2 lleva la x-api-key de demostración en
+# «Cómo entrar y usarlo». Se queda en local; la versión pública, sin la clave,
+# es documents/aeronova_entregable_tarea2_publico.pdf.
+documents/aeronova_entregable_tarea2.pdf
+images/

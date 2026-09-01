@@ -1,0 +1,15 @@
+# Dependencias de ejecución de la Lambda (PRD §2.6).
+# Versiones fijadas con "==", nunca rangos: resueltas una vez dentro de la
+# imagen base arm64 public.ecr.aws/lambda/python:3.12 y congeladas (§2.6, R-03).
+# Para re-resolver: pip install de la lista mínima dentro de esa imagen y volver a fijar.
+
+langgraph==1.2.11
+langchain-core==1.6.1
+langchain-anthropic==1.7.0
+anthropic==1.2.0
+lancedb==0.37.1
+pyarrow==25.0.1
+boto3==1.42.97
+pydantic==2.13.4
+pydantic-settings==2.15.0
+aws-lambda-powertools==3.34.0

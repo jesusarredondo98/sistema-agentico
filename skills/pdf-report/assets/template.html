@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Título del informe</title>
+<link rel="stylesheet" href="report.css">
+</head>
+<body>
+
+<!-- ===== PORTADA — banda a sangre, siempre primero ===================== -->
+<header class="cover">
+  <p class="eyebrow">Resumen técnico &middot; Fase 2 / 3</p>
+  <h1>Título del informe</h1>
+  <p class="lede">Una línea que dice de qué va el documento, sin repetir el título.</p>
+</header>
+
+<div class="wrap">
+
+  <!-- ===== METADATOS ================================================== -->
+  <div class="meta">
+    <div>
+      <div class="who">Nombre del autor</div>
+      <div class="when">26 de agosto de 2026</div>
+    </div>
+    <div class="right">
+      <div><a href="https://github.com/usuario/repo">github.com/usuario/repo</a></div>
+      <div class="note">Requerimientos: PRD v2.7 &middot; Harness: Agents.md</div>
+    </div>
+  </div>
+
+  <!-- ===== KPI — usar 3; con 2 o 4 ajustar grid-template-columns ====== -->
+  <div class="kpis">
+    <div class="kpi"><div class="value">25</div><div class="lab">Skills atómicas</div></div>
+    <div class="kpi"><div class="value">19/19</div><div class="lab">Pruebas pasando</div></div>
+    <div class="kpi"><div class="value">994/1000</div><div class="lab">Registros válidos</div></div>
+  </div>
+
+  <!-- ===== SECCIÓN NUMERADA ========================================== -->
+  <div class="section"><span class="n">1</span><h2>Arquitectura</h2></div>
+
+  <!-- ===== DIAGRAMA DE FLUJO ========================================= -->
+  <div class="pipeline">
+    <div class="stage">
+      <div class="box">Origen</div>
+      <div class="cap">Nota breve bajo la etapa &middot; se admite <code>código</code>.</div>
+    </div>
+    <div class="chev">&rsaquo;</div>
+    <div class="stage">
+      <div class="box">Bronze</div>
+      <div class="cap">Crudo e inmutable, particionado por fecha de ingesta.</div>
+    </div>
+    <div class="chev">&rsaquo;</div>
+    <div class="stage">
+      <div class="box">Silver</div>
+      <div class="cap">Validado contra contrato, tipado y deduplicado.</div>
+    </div>
+    <div class="chev">&rsaquo;</div>
+    <div class="stage">
+      <div class="box">Gold</div>
+      <div class="cap">Capa de servicio, versionada e inmutable.</div>
+    </div>
+  </div>
+
+  <!-- ===== SECCIÓN + LISTA DE HALLAZGOS ============================== -->
+  <div class="section"><span class="n">2</span><h2>Decisiones clave</h2></div>
+
+  <ul class="findings">
+    <li><strong>Entradilla en negrita</strong> seguida del desarrollo — la primera
+        frase carga el peso y el resto matiza. Admite <code>código en línea</code>.</li>
+    <li><code>opción_a</code> <strong>sustituida por</strong> <code>opción_b</code>:
+        el motivo va aquí, con el dato que sostiene la decisión.</li>
+  </ul>
+
+  <!-- ===== CATÁLOGO EN DOS COLUMNAS ================================== -->
+  <div class="section"><span class="n">3</span><h2>Catálogo</h2></div>
+
+  <div class="catalog">
+    <div>
+      <div class="group">
+        <div class="head">Transversal</div>
+        <ul><li>elemento-uno</li><li>elemento-dos</li><li>elemento-tres</li></ul>
+      </div>
+      <div class="group">
+        <div class="head">Bronze — ingesta</div>
+        <ul><li>elemento-cuatro</li><li>elemento-cinco</li></ul>
+      </div>
+    </div>
+    <div>
+      <div class="group">
+        <div class="head">Gold — IA</div>
+        <ul><li>elemento-seis</li><li>elemento-siete</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECCIÓN + TABLA DE DATOS ================================== -->
+  <div class="section"><span class="n">4</span><h2>Resultados</h2></div>
+
+  <div class="subsection"><h3>4.1&nbsp; Idempotencia — 20 páginas reales</h3></div>
+
+  <table class="data">
+    <thead>
+      <tr><th>Métrica</th><th class="num">Corrida 1</th><th class="num">Corrida 2</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>filas_leidas</td><td class="num">1000</td><td class="num">1000</td></tr>
+      <tr><td>filas_validas</td><td class="num">994</td><td class="num">994</td></tr>
+      <tr><td>filas_nuevas</td><td class="num">994</td><td class="num">0</td></tr>
+    </tbody>
+  </table>
+  <p class="caption">Pie de tabla: la lectura que el lector no debe deducir solo.</p>
+
+  <!-- ===== TABLA CON FILA DESTACADA ================================== -->
+  <div class="subsection"><h3>4.2&nbsp; Comparativa</h3></div>
+
+  <table class="data">
+    <thead>
+      <tr><th>Motor</th><th class="num">Latencia p50</th><th class="num">Recall@k</th><th class="num">Huella</th></tr>
+    </thead>
+    <tbody>
+      <tr class="highlight">
+        <td>faiss.IndexFlatIP <span class="badge">Elegido</span></td>
+        <td class="num">0.069</td><td class="num">1.000</td><td class="num">1,526,829 B</td>
+      </tr>
+      <tr><td>usearch.Index (HNSW)</td><td class="num">0.079</td><td class="num">1.000</td><td class="num">1,673,840 B</td></tr>
+    </tbody>
+  </table>
+  <p class="caption">Empate en recall — gana el de menor huella, según la regla de decisión del PRD.</p>
+
+  <!-- ===== TABLA CON BARRA DE TÍTULO ================================= -->
+  <div class="section"><span class="n">5</span><h2>Ejemplos</h2></div>
+
+  <div class="qtable">
+    <div class="title">&ldquo;consulta de ejemplo entrecomillada&rdquo;</div>
+    <table class="data">
+      <thead><tr><th>id</th><th>título</th><th class="num">score</th><th>sinopsis</th></tr></thead>
+      <tbody>
+        <tr><td>465</td><td>Primer resultado</td><td class="num">0.6065</td><td>Texto largo que se ajusta al ancho de la celda…</td></tr>
+        <tr><td>459</td><td>Segundo resultado</td><td class="num">0.5959</td><td>Otro fragmento de texto…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div><!-- /wrap -->
+</body>
+</html>
