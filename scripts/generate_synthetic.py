@@ -311,6 +311,11 @@ _FRASES_CATEGORIA: dict[str, list[tuple[str, int | None]]] = {
         ("Los articulos fragiles, la ceramica y los instrumentos musicales deben declararse en el mostrador antes del embarque.", None),
         ("El equipaje deportivo, como bicicletas, tablas de surf y palos de golf, requiere reserva previa y un suplemento de {n} euros.", 60),
         ("Las baterias de litio y los cargadores portatiles solo se admiten en el equipaje de mano, nunca en la bodega.", None),
+        ("El equipaje facturado que no aparezca en destino debe declararse antes de salir de la zona de recogida mediante un Parte de Irregularidad de Equipaje (PIR); transcurridos {n} dias sin localizarlo se considera definitivamente extraviado.", 21),
+        ("Si el equipaje facturado llega con retraso, AeroNova reembolsa los gastos de primera necesidad hasta {n} euros por dia contra recibos, durante un maximo de cinco dias.", 100),
+        ("Los danos visibles en el equipaje facturado deben reclamarse en el mostrador de AeroNova en un plazo maximo de {n} dias desde su recepcion.", 7),
+        ("La responsabilidad de AeroNova por perdida, dano o retraso del equipaje facturado esta limitada a {n} euros por pasajero, salvo declaracion especial de valor con suplemento.", 1400),
+        ("AeroNova no responde del dinero, las joyas, los aparatos electronicos ni los documentos transportados dentro del equipaje facturado.", None),
     ],
     "MASCOTAS": [
         ("Se permite un animal de compania por pasajero en cabina, siempre que el peso combinado con el transportin no supere los {n} kilogramos.", 8),
@@ -319,6 +324,9 @@ _FRASES_CATEGORIA: dict[str, list[tuple[str, int | None]]] = {
         ("Los perros de asistencia viajan gratis en cabina junto a su titular y no computan como equipaje de mano.", None),
         ("No se admiten razas de perro consideradas potencialmente peligrosas ni animales de menos de doce semanas de edad.", None),
         ("La tarifa por mascota en cabina es de {n} euros por trayecto y debe abonarse al hacer la reserva.", 50),
+        ("El numero de animales admitidos en cabina esta limitado a {n} por vuelo y la plaza se confirma por orden de solicitud.", 4),
+        ("Si la mascota finalmente no viaja, la tarifa abonada por su transporte se reembolsa siempre que se comunique antes del cierre de facturacion.", None),
+        ("El contenedor para bodega debe ser rigido, homologado por la IATA, con ventilacion en al menos tres lados y un bebedero fijado a la puerta.", None),
     ],
     "CAMBIOS": [
         ("El cambio de fecha o de ruta puede solicitarse hasta {n} horas antes de la salida programada del vuelo.", 24),
@@ -327,6 +335,9 @@ _FRASES_CATEGORIA: dict[str, list[tuple[str, int | None]]] = {
         ("Si la nueva fecha tiene una tarifa superior, el pasajero abona la diferencia; si es inferior, no se genera reembolso.", None),
         ("Los cambios solicitados dentro de las cuatro horas previas al vuelo se tramitan unicamente en el mostrador del aeropuerto.", None),
         ("Un cambio de ruta que implique un aeropuerto distinto se considera billete nuevo y no un cambio.", None),
+        ("La correccion de un error tipografico en el nombre de hasta {n} caracteres es gratuita y no se considera cambio de titular.", 3),
+        ("Los cambios de fecha por enfermedad del pasajero acreditada con informe medico no aplican penalizacion, solo la diferencia de tarifa.", None),
+        ("Cuando AeroNova adelanta o retrasa un vuelo mas de {n} horas, el pasajero puede cambiar sin coste a otro vuelo o solicitar el reembolso.", 3),
     ],
     "REEMBOLSOS": [
         ("El pasajero tiene derecho a reembolso integro si cancela un billete reembolsable con al menos {n} horas de antelacion.", 48),
@@ -335,6 +346,10 @@ _FRASES_CATEGORIA: dict[str, list[tuple[str, int | None]]] = {
         ("Las tasas aeroportuarias son siempre reembolsables aunque el billete sea de tarifa no reembolsable.", None),
         ("En caso de fallecimiento o enfermedad grave acreditada del pasajero, se reembolsa el billete sin penalizacion.", None),
         ("La solicitud de reembolso se presenta a traves del formulario web y requiere el localizador y el documento de identidad.", None),
+        ("Los suplementos de equipaje, asiento o mascota se reembolsan integros cuando el servicio contratado no llega a prestarse por causa imputable a AeroNova.", None),
+        ("El pasajero que no se presenta al embarque pierde el importe del billete; solo se reembolsan las tasas aeroportuarias, previa solicitud.", None),
+        ("La indemnizacion por equipaje facturado definitivamente extraviado se tramita como reembolso independiente del billete y se abona por transferencia en un plazo de {n} dias habiles.", 21),
+        ("El pasajero puede aceptar de forma voluntaria un bono de viaje por un valor superior al reembolso en efectivo; la aceptacion del bono es siempre opcional.", None),
     ],
     "MENORES": [
         ("Los menores de entre cinco y once anos que viajen solos deben contratar el servicio de menor no acompanado, con un coste de {n} euros por trayecto.", 45),
@@ -345,6 +360,8 @@ _FRASES_CATEGORIA: dict[str, list[tuple[str, int | None]]] = {
         ("Los menores de dos anos viajan en el regazo de un adulto sin asiento asignado y abonan el diez por ciento de la tarifa; se recomienda llevar el libro de familia o certificado de nacimiento.", None),
         ("Un menor de entre doce y diecisiete anos puede viajar solo sin el servicio de acompanamiento si el adulto responsable lo autoriza por escrito y adjunta copia de su documento de identidad.", None),
         ("En vuelos con escala, el servicio de menor no acompanado solo se ofrece si la conexion se realiza en un aeropuerto de la red de AeroNova.", None),
+        ("El menor no acompanado tiene derecho al mismo equipaje facturado que su tarifa e incluye el transporte gratuito de un cochecito o una silla infantil.", None),
+        ("AeroNova asigna al menor no acompanado un asiento de pasillo cercano a la tripulacion de cabina, sin coste de seleccion de asiento.", None),
     ],
     "COMPENSACIONES": [
         ("Una demora superior a tres horas a la llegada da derecho a una compensacion de entre 250 y {n} euros segun la distancia del vuelo.", 600),
@@ -353,6 +370,9 @@ _FRASES_CATEGORIA: dict[str, list[tuple[str, int | None]]] = {
         ("No hay compensacion economica cuando la demora se debe a circunstancias extraordinarias como condiciones meteorologicas adversas.", None),
         ("El derecho a asistencia incluye dos llamadas telefonicas, comida y bebida proporcionales al tiempo de espera.", None),
         ("La reclamacion de compensacion debe presentarse en el plazo de {n} dias desde la fecha del vuelo afectado.", 90),
+        ("La perdida, el dano o el retraso del equipaje facturado dan derecho a indemnizacion conforme al Convenio de Montreal, con el limite economico fijado en la politica de equipaje.", None),
+        ("Cuando la demora obliga a pernoctar, AeroNova cubre el alojamiento y el transporte entre el aeropuerto y el hotel hasta la salida del vuelo alternativo.", None),
+        ("La compensacion economica se abona por transferencia bancaria o al medio de pago original en un plazo de {n} dias; el pago en bonos requiere el acuerdo expreso del pasajero.", 7),
     ],
     "ACCESIBILIDAD": [
         ("El pasajero con movilidad reducida debe solicitar la asistencia especial al menos {n} horas antes de la salida del vuelo.", 48),
@@ -361,6 +381,8 @@ _FRASES_CATEGORIA: dict[str, list[tuple[str, int | None]]] = {
         ("El personal de cabina presta asistencia para el embarque, el desembarque y el traslado al aseo, pero no para tareas de higiene personal.", None),
         ("Los pasajeros con discapacidad visual o auditiva reciben la informacion de seguridad en formato accesible antes del despegue.", None),
         ("El perro guia viaja en cabina junto a su usuario sin coste y sin necesidad de transportin.", None),
+        ("La asistencia especial se coordina de extremo a extremo, incluidas las conexiones, siempre que todos los tramos se emitan en la misma reserva.", None),
+        ("El pasajero que no pueda atender sus necesidades basicas de forma autonoma durante el vuelo debe viajar con un acompanante mayor de edad.", None),
     ],
 }
 
@@ -391,7 +413,11 @@ def gen_corpus(rng: random.Random) -> list[dict]:
     documentos = []
     for doc_id, categoria in todos:
         seq = int(doc_id[-3:])
-        n_art = rng.randint(4, 6)
+        # 4-7 frases de dominio por documento (pool de 9-11 por categoria): cubre
+        # los subtemas habituales (equipaje extraviado/danado, no-show, correccion
+        # de nombre, etc.) que el agente sugiere como consulta de seguimiento, y da
+        # combinaciones suficientes para que E-06 no los trate como casi-duplicados.
+        n_art = rng.randint(5, 8)
         articulos = [f"Articulo 1. {_PLANTILLA_INTRO[categoria]}"]
         articulos.append(
             f"Articulo 2. El ambito de aplicacion de {doc_id} alcanza {_ambitos[seq % len(_ambitos)]}; "
