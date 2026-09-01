@@ -249,9 +249,9 @@ Ajusta libremente, pero cubre estos hitos:
     `golden_result.txt`)
 14. **Carga** — 500 sesiones con `dry_run`; encolado y TTL verificados sin pagar
     500 llamadas.
-15. **Demo en vivo** — insertar `aeronova_demo.gif` (5 consultas reales:
-    estado de vuelo, reserva, política/RAG, radar operativo, nacionales vs
-    internacionales).
+15. **Demo en vivo** — insertar `aeronova_demo.gif` (grabación de la web real:
+    estado de vuelo, reserva, política/RAG, radar operativo con gráficas,
+    nacionales vs internacionales).
 16. **Resultado y aprendizajes** — números del §3; 3 aprendizajes: (a) el arnés
     es barato y se paga solo, (b) evidencia por tarea mata la alucinación de
     progreso, (c) las skills convierten el chat en un sistema repetible.
@@ -266,7 +266,7 @@ Notas del orador: para cada práctica, di el problema concreto que evita (column
 | Archivo | Para qué |
 |---|---|
 | `BRIEF.md` | este documento |
-| `aeronova_demo.gif` | demo de 5 consultas reales — diapositiva 15 |
+| `aeronova_demo.gif` | capturas **reales** de la web desplegada (Chrome sobre CloudFront), 5 consultas — diapositiva 15 |
 | `README.md` | arquitectura, estructura, runbook |
 | `PRD.md` | documento normativo completo (referencia; no leerlo entero) |
 | `PLAN.md` | plan vivo con el estado por fase |

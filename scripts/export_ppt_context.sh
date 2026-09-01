@@ -11,12 +11,19 @@ set -eu   # sin pipefail: varios pipelines terminan en `head` y provocan SIGPIPE
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
-OUT="build/ppt-context"
+# build/ppt-context/ guarda los intermedios (node_modules, shots/); el paquete
+# que se comparte es la subcarpeta bundle/, limpia.
+OUT="build/ppt-context/bundle"
+rm -rf "$OUT"
 mkdir -p "$OUT/acuerdos"
 
-echo "==> generando GIF de demo (si falta o si se piden respuestas nuevas)"
 if [ ! -f "docs/ppt/aeronova_demo.gif" ]; then
-  python scripts/demo_gif.py || echo "   (aviso: no se pudo generar el GIF; sigo sin él)"
+  echo "==> falta docs/ppt/aeronova_demo.gif — regeneralo con:"
+  echo "    (cd build/ppt-context && npm i playwright-core)   # una vez"
+  echo "    AERONOVA_API_URL=\$(terraform -chdir=terraform/10-app output -raw api_url) \\"
+  echo "    AERONOVA_API_KEY=\$(terraform -chdir=terraform/10-app output -raw api_key) \\"
+  echo "    node scripts/demo_shots.js && python scripts/demo_gif.py"
+  echo "   (sigo sin el GIF)"
 fi
 
 echo "==> copiando artefactos"
